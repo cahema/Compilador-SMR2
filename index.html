@@ -1,0 +1,48 @@
+<!doctype html>
+
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" type="text/css" href="styles.css">
+	</head>
+
+	<body>
+
+		<div id="mainDiv">
+			<h1>Ensamblador/Intérprete para el procesador ProcSMR2</h1>
+
+			<p>Introduzca el código en lenguaje de bajo nivel SMR2 que desee compilar a
+			código máquina del microprocesador ProcSMR2. Cuando haya terminado, pulse el
+			botón de generar para que se genere el código máquina correspondiente.</p>
+			<p>Una vez se haya generado el código máquina correspondiente, pulse el botón
+			de ejecutar para que se ejecute y muestre el resultado de la ejecución</p>
+
+		<fieldset>
+			<textarea id="txtCodigo"></textarea>
+			<legend>Código a compilar</legend>
+		</fieldset>
+			<div id="divErrorCodigo"></div>
+
+		<div id="divBotones">
+			<input type="button" id="btnGenerar" value="Generar Código">
+			<input type="button" id="btnEjecutar" value="Ejecutar">
+		</div>
+
+			<fieldset>
+				<textarea id="txtBinario"></textarea>
+				<legend>Código binario/máquina</legend>
+			</fieldset>
+
+			<div id="divErrorBinario"></div>
+
+			<fieldset id="fieldOutput">
+				<legend>Resultado de ejecución</legend>
+				<div id="divOutput"></div>
+			</fieldset>
+		</div>
+
+		<script src="script.js"></script>
+
+	</body>
+
+</html>
