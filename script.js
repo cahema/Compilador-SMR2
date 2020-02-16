@@ -363,3 +363,51 @@ function ejecutar() {
 
 document.querySelector("#btnGenerar").addEventListener("click", generar);
 document.querySelector("#btnEjecutar").addEventListener("click", ejecutar);
+
+let ProcSMR2 = {
+	
+	diccionarios : {
+		
+		instrucciones : {
+			
+			imprime : "00000",
+			imprimec : "00001",
+			valor : "00010",
+			borra : "00011",
+			suma : "00100",
+			resta : "00101",
+			salta : "00110",
+			saltasi0 : "00111",
+			
+		},
+		
+		registros : {
+			
+			R0 : "000",
+			R1 : "001",
+			R2 : "010",
+			R3 : "011",
+			R4 : "100",
+			R5 : "101",
+			R6 : "110",
+			R7 : "111",
+			
+		},
+	
+	},
+	
+	memoria : {
+		
+		registros : [0, 0, 0, 0, 0, 0, 0, 0],
+		
+		programa : [],
+		
+		linea : 0,
+		
+	},
+	
+/* 	operaciones : {
+		
+	}, */
+	
+}
