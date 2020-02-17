@@ -406,7 +406,13 @@ let ProcSMR2 = {
 		
 	},
 	
-/* 	operaciones : {
+/* 	TODO
+
+	operaciones : {
+		
+	},
+	
+	debug : {
 		
 	}, */
 	
