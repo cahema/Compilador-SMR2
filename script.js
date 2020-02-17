@@ -14,122 +14,6 @@
 function generar() {
 	
 	///////////////////
-	// Sub-Funciones //
-	///////////////////
-	
-	/*
-	* InstruccionABinario
-	*
-	*	Esta función recibe un parámetro llamado instrucción y lo compara con las
-	*	instrucciones válidas y añade su valor en binario a una cadena que contiene
-	*	el código en binario
-	*
-	*/
-
-
-	function instruccionABinario(instruccion) {
-		
-		//Comprueba que instrucción es y añade su código a strBinario
-		
-		contador++;
-
-		if (instruccion == "imprime")       {strBinario += "00000";}
-		
-		else if (instruccion == "imprimec") {strBinario += "00001";}
-		
-		else if (instruccion == "valor")    {strBinario += "00010"; tieneDatos = true;}
-		
-		else if (instruccion == "borra")    {strBinario += "00011";}
-		
-		else if (instruccion == "suma")     {strBinario += "00100"; tieneDatos = true;}
-		
-		else if (instruccion == "resta")    {strBinario += "00101"; tieneDatos = true;}
-		
-		else if (instruccion == "salta")    {strBinario += "00110000"; decimalABinario(arrCodigo[contador]); return;}
-		
-		else if (instruccion == "saltasi0") {strBinario += "00111"; tieneDatos = true;}
-		
-		//Si esa instrucción no existe, la bandera de instrucción ilegal se activa
-		else {
-			instruccionIlegal = true; 
-			return;
-		}
-		
-		registroABinario(arrCodigo[contador]); 
-	}
-	
-	/*
-	* registroABinario
-	*
-	*	Esta función recibe un parámetro llamado registro y lo compara con los
-	*	registros válidos y añade su valor en binario a una cadena que contiene
-	*	el código en binario
-	*
-	*/
-
-
-	function registroABinario(registro) {
-		
-		//Comprueba que registro es y añade su código a strBinario
-		
-		contador++;
-
-		if      (registro == "R0") {strBinario += "000";}
-		
-		else if (registro == "R1") {strBinario += "001";}
-		
-		else if (registro == "R2") {strBinario += "010";}
-		
-		else if (registro == "R3") {strBinario += "011";}
-		
-		else if (registro == "R4") {strBinario += "100";}
-		
-		else if (registro == "R5") {strBinario += "101";}
-		
-		else if (registro == "R6") {strBinario += "110";}
-		
-		else if (registro == "R7") {strBinario += "111";}
-		
-		else { //Si ese registro no existe, la bandera de registro ilegal se activa
-			registroIlegal = true;
-			return;
-		}
-		
-		if (tieneDatos == true) { //Si usa algún dato, se convierte a binario, si no, se pone como ocho ceros
-			decimalABinario(arrCodigo[contador]);
-		}
-		
-		else {strBinario += "00000000";}
-	}
-	
-	/*
-	* decimalABinario
-	*
-	*	Esta función recibe un número en binario y lo convierte a decimal
-	*	y añade su valor en binario a una cadena que contiene el código en binario
-	*
-	*/
-	
-	function decimalABinario(numeroDecimal) {
-		
-		if (numeroDecimal > 255) { //Si el número es superior a 255 la bandera de número ilegal se activa
-			numeroIlegal = true;
-			return;
-		}
-		
-		let dividendo = numeroDecimal;
-		let strTemporal = ""; //Una cadena temporal para construir la final
-		
-		for (let i=0; i < 8; i++) {
-			strTemporal = dividendo%2 + strTemporal; //Se añade al principio de la cadena el módulo
-			dividendo = Math.floor(dividendo/2); //Se divide entre dos y se redondea hacia abajo
-		}
-
-		strBinario += strTemporal;
-		contador++;
-	}
-	
-	///////////////////
 	// Función en si //
 	///////////////////
 	
@@ -143,33 +27,56 @@ function generar() {
 
 	let arrCodigo = txtCodigo.split(/\s+/); //Se usa una expresión regular para separar el texto en un array usando como separadores espacios y retornos de carro
 	let strBinario = ""; //Una cadena para el binario
-	let tieneDatos = false; //Bandera para determinar si la instrucción usa algún dato
 	let contador = 0;
-	let linea = 0;
-	let instruccionIlegal = false; //Bandera para señalar una instrucción ilegal
-	let registroIlegal = false; //Bandera para señalar un registro ilegal
-	let numeroIlegal = false; //Bandera para señalar un número ilegal
+	let lineaError = 0;
+	ProcSMR2.banderas.instruccionIlegal = false;
+	ProcSMR2.banderas.registroIlegal = false;
+	ProcSMR2.banderas.numeroIlegal = false;
 	
 	while (contador < arrCodigo.length) {
 		
-		if (instruccionIlegal) { //Si hay una instrucción ilegal, muestra un error y la línea del error
-			divErrorCodigo.innerHTML = "Error: ha introducido una instrucción ilegal en la línea " + linea;
+		if (ProcSMR2.banderas.instruccionIlegal) { //Si hay una instrucción ilegal, muestra un error y la línea del error
+			divErrorCodigo.innerHTML = "Error: ha introducido una instrucción ilegal en la línea " + lineaError;
 			return;
 		}
 		
-		else if (registroIlegal) { //Si hay un registro ilegal, muestra un error y la línea error
-			divErrorCodigo.innerHTML = "Error: ha introducido un registro ilegal en la línea " + linea;
+		else if (ProcSMR2.banderas.registroIlegal) { //Si hay un registro ilegal, muestra un error y la línea error
+			divErrorCodigo.innerHTML = "Error: ha introducido un registro ilegal en la línea " + lineaError;
 			return;
 		}
 		
-		else if (numeroIlegal) { //Si hay un número ilegal, muestra un error y la línea del error
-			divErrorCodigo.innerHTML = "Error: ha introducido un número ilegal en la línea " + linea;
+		else if (ProcSMR2.banderas.numeroIlegal) { //Si hay un número ilegal, muestra un error y la línea del error
+			divErrorCodigo.innerHTML = "Error: ha introducido un número ilegal en la línea " + lineaError;
 			return;
 		}
 		
-		instruccionABinario(arrCodigo[contador]);
-		tieneDatos = false;
-		linea++;
+		lineaError++;
+		let instruccionActual = ProcSMR2.diccionarios.instrucciones[arrCodigo[contador]];
+		console.log(instruccionActual);
+		
+		if (instruccionActual == undefined) { ProcSMR2.banderas.instruccionIlegal = true; continue; }
+		else { strBinario += instruccionActual["codigoBinario"]; contador++; }
+		
+		if (instruccionActual["usaRegistro"]) {
+			if (ProcSMR2.diccionarios.registros[arrCodigo[contador]] == undefined) { ProcSMR2.banderas.registroIlegal = true; continue; }
+			else { strBinario += ProcSMR2.diccionarios.registros[arrCodigo[contador]]; contador++; }
+		}
+		else { strBinario += "000";}
+		
+		if (instruccionActual["usaDatos"]) {
+			if (isNaN(arrCodigo[contador]) || arrCodigo[contador] < 0 || arrCodigo[contador] > 255) {
+				ProcSMR2.banderas.numeroIlegal = true; continue; }
+			else {
+				let numTemporal = Number(arrCodigo[contador]).toString(2);
+				while (numTemporal.length < 8) {
+					numTemporal = "0" + numTemporal;
+				}
+				strBinario += numTemporal;
+				contador++;
+			}
+		}
+		
+		else { strBinario += "00000000";}
 	}
 	
 	if (strBinario.length > 4096) { //Si el programa supera los 512 bytes, muestra un error
@@ -325,7 +232,8 @@ function ejecutar() {
 	}
 
 	console.table(ProcSMR2.memoria.programa);
-
+	ProcSMR2.memoria.linea = 0;
+	
 	divOutput.innerHTML = "";
 	strOutput = "<pre>";
 	let instruccionIlegal = false; //Bandera para señalar una instrucción ilegal
@@ -341,7 +249,7 @@ function ejecutar() {
 
 		//Ejecuta la instrucción (la cuál siempre está en el primer elemento) de la linea actual
 		ejecutarInstruccion(memoria[linea][0]);
-		linea++;
+		ProcSMR2.memoria.linea++;
 	}
 
 	strOutput += "</pre>";
@@ -366,14 +274,14 @@ let ProcSMR2 = {
 		
 		instrucciones : {
 			
-			imprime : "00000",
-			imprimec : "00001",
-			valor : "00010",
-			borra : "00011",
-			suma : "00100",
-			resta : "00101",
-			salta : "00110",
-			saltasi0 : "00111",
+			imprime  : {codigoBinario : "00000", usaRegistro : true,  usaDatos : false},
+			imprimec : {codigoBinario : "00001", usaRegistro : true,  usaDatos : false},
+			valor    : {codigoBinario : "00010", usaRegistro : true,  usaDatos : true },
+			borra    : {codigoBinario : "00011", usaRegistro : true,  usaDatos : false},
+			suma     : {codigoBinario : "00100", usaRegistro : true,  usaDatos : true },
+			resta    : {codigoBinario : "00101", usaRegistro : true,  usaDatos : true },
+			salta    : {codigoBinario : "00110", usaRegistro : false, usaDatos : true },
+			saltasi0 : {codigoBinario : "00111", usaRegistro : true,  usaDatos : true },
 			
 		},
 		
@@ -395,16 +303,15 @@ let ProcSMR2 = {
 	memoria : {
 		
 		registros : [0, 0, 0, 0, 0, 0, 0, 0],
-		
 		programa : [],
-		
 		linea : 0,
 		
 	},
 
 	operaciones : {
+		
 		"00000" : function() { //imprime
-        	strOutput += ProcSMR2.memoria.registros[parseInt(registroActual, 2)];
+        	strOutput += ProcSMR2.memoria.registros[parseInt(registroActual(), 2)];
     	},
 
     	"00001" : function() { //imprimec
@@ -413,14 +320,24 @@ let ProcSMR2 = {
 
     },
 	
+	banderas : {
+		
+		instruccionIlegal : false,
+		registroIlegal : false,
+		numeroIlegal : false,
+		
+	},
+	
     auxiliares : {
 
     	registroActual : function() {
-    		return parseInt(ProcSMR2.memoria.programa[ProcSMR2.memoria.linea]["registro"], 2);
+			let registroBin = ProcSMR2.memoria.programa[ProcSMR2.memoria.linea]["registro"]
+    		return parseInt(registroBin, 2);
     	},
 
     	datoActual : function() {
-    		return parseInt(ProcSMR2.memoria.programa[ProcSMR2.memoria.linea]["dato"], 2);
+    		let registroBin = ProcSMR2.memoria.programa[ProcSMR2.memoria.linea]["dato"]
+    		return parseInt(registroBin, 2);
     	},
 
     },
