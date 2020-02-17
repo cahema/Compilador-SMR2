@@ -299,47 +299,40 @@ function ejecutar() {
 	}
 
 	let contador = 0;
-	let linea = 0;
-	let registros = [0, 0, 0, 0, 0, 0, 0, 0]; //Array con los registros
-	let memoria = []; //Array donde se carga el programa
-	let caracteresASCII = ["\u0000","\u0001","\u0002","\u0003","\u0004","\u0005","\u0006","\u0007","\b","\t","\n","\u000b","\f","\r","\u000e","\u000f","\u0010","\u0011","\u0012","\u0013","\u0014","\u0015","\u0016","\u0017","\u0018","\u0019","\u001a","\u001b","\u001c","\u001d","\u001e","\u001f"," ","!","\"","#","$","%","&","'","(",")","*","+",",","-",".","/","0","1","2","3","4","5","6","7","8","9",":",";","<","=",">","?","@","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","[","\\","]","^","_","`","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","{","|","}","~"]
-	let strOutput = "";
 
 	for (linea = 0; linea < txtBinario.length/16; linea++) {
 
-		memoria[linea] = []
+		ProcSMR2.memoria.programa[linea] = []
 
 		//Carga el programa en un array llamado memoria por lineas
 		//Cada linea contiene una instrucción, registro y dato
-		if (memoria[linea][0] == undefined) { 
-			memoria[linea][0] = "";
-			memoria[linea][1] = "";
-			memoria[linea][2] = "";
+		if (ProcSMR2.memoria.programa[linea]["operacion"] == undefined) { 
+			ProcSMR2.memoria.programa[linea]["operacion"] = "";
+			ProcSMR2.memoria.programa[linea]["registro"] = "";
+			ProcSMR2.memoria.programa[linea]["dato"] = "";
 		}
 
 		for (let i = 0; i < 16 ; i++) {
 
-			if      (i < 5)  { memoria[linea][0] += txtBinario[contador]; } //Carga la instrucción, 5 bits de largo
+			if      (i < 5)  { ProcSMR2.memoria.programa[linea]["operacion"] += txtBinario[contador]; } //Carga la instrucción, 5 bits de largo
 
-			else if (i < 8)  { memoria[linea][1] += txtBinario[contador]; } //Carga el registro, 3 bits de largo
+			else if (i < 8)  { ProcSMR2.memoria.programa[linea]["registro"] += txtBinario[contador]; } //Carga el registro, 3 bits de largo
 
-			else if (i < 16) { memoria[linea][2] += txtBinario[contador]; } //Carga el dato, 8 bits de largo
+			else if (i < 16) { ProcSMR2.memoria.programa[linea]["dato"] += txtBinario[contador]; } //Carga el dato, 8 bits de largo
 
 			contador++;
 		}
 	}
 
-	console.table(memoria);
+	console.table(ProcSMR2.memoria.programa);
 
-	linea = 0;
-	contador = 0;
 	divOutput.innerHTML = "";
 	strOutput = "<pre>";
 	let instruccionIlegal = false; //Bandera para señalar una instrucción ilegal
 	let numeroIlegal = false; //Bandera para señalar un número ilegal
 
 	//Se repite el bucle hasta que llegue al final del programa o a la linea 255
-	while (linea < memoria.length && linea <= 255) {
+	while (ProcSMR2.memoria.linea < ProcSMR2.memoria.programa.length && ProcSMR2.memoria.linea <= 255) {
 
 		if (instruccionIlegal || numeroIlegal) { //Si hay una instrucción ilegal, muestra un error y la línea del error
 			divErrorBinario.innerHTML = "Error: el código binario que ha introducido no es válido";
@@ -360,6 +353,9 @@ function ejecutar() {
 ////////////////////
 //      MAIN      //
 ////////////////////
+
+let strOutput = "";
+let caracteresASCII = ["\u0000","\u0001","\u0002","\u0003","\u0004","\u0005","\u0006","\u0007","\b","\t","\n","\u000b","\f","\r","\u000e","\u000f","\u0010","\u0011","\u0012","\u0013","\u0014","\u0015","\u0016","\u0017","\u0018","\u0019","\u001a","\u001b","\u001c","\u001d","\u001e","\u001f"," ","!","\"","#","$","%","&","'","(",")","*","+",",","-",".","/","0","1","2","3","4","5","6","7","8","9",":",";","<","=",">","?","@","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","[","\\","]","^","_","`","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","{","|","}","~"];
 
 document.querySelector("#btnGenerar").addEventListener("click", generar);
 document.querySelector("#btnEjecutar").addEventListener("click", ejecutar);
@@ -405,15 +401,32 @@ let ProcSMR2 = {
 		linea : 0,
 		
 	},
-	
-/* 	TODO
 
 	operaciones : {
-		
-	},
+		"00000" : function() { //imprime
+        	strOutput += ProcSMR2.memoria.registros[parseInt(registroActual, 2)];
+    	},
+
+    	"00001" : function() { //imprimec
+
+    	},
+
+    },
 	
+    auxiliares : {
+
+    	registroActual : function() {
+    		return parseInt(ProcSMR2.memoria.programa[ProcSMR2.memoria.linea]["registro"], 2);
+    	},
+
+    	datoActual : function() {
+    		return parseInt(ProcSMR2.memoria.programa[ProcSMR2.memoria.linea]["dato"], 2);
+    	},
+
+    },
+
 	debug : {
 		
-	}, */
+	},
 	
 }
