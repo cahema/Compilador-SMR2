@@ -6,12 +6,13 @@
 * Generar
 *
 *	Esta función convierte el código introducido en el textarea de código
-*	en una serie de números binarios y además comprueba la validez del
-*   código introducido
+*	en una serie de números binarios y además comprueba la validez del código introducido
 *
 */
 
 function generar() {
+	
+	//Esta funcion hace comprobaciones de que las banderas de errores no han sido activadas
 	
 	function comprobarErrores() {
 		if (ProcSMR2.banderas.instruccionIlegal) { //Si hay una instrucción ilegal, muestra un error y la línea del error
@@ -41,7 +42,7 @@ function generar() {
 	let arrCodigo = txtCodigo.split(/\s+/); //Se usa una expresión regular para separar el texto en un array usando como separadores espacios y retornos de carro
 	let strBinario = ""; //Una cadena para el binario
 	let contador = 0;
-	let lineaError = 0;
+	let lineaError = 0; //Contador para saber en que linea se produce el error
 	ProcSMR2.banderas.instruccionIlegal = false;
 	ProcSMR2.banderas.registroIlegal = false;
 	ProcSMR2.banderas.numeroIlegal = false;
@@ -50,21 +51,21 @@ function generar() {
 		
 		comprobarErrores();
 		lineaError++;
-		let instruccionActual = ProcSMR2.diccionarios.instrucciones[arrCodigo[contador]];
+		let instruccionActual = ProcSMR2.diccionarios.instrucciones[arrCodigo[contador]]; //Se guarda el objeto con la instruccion actual
 		
-		if (instruccionActual == undefined) { ProcSMR2.banderas.instruccionIlegal = true; continue; }
-		else { strBinario += instruccionActual["codigoBinario"]; contador++; }
+		if (instruccionActual == undefined) { ProcSMR2.banderas.instruccionIlegal = true; continue; } //Si es undefined activa la bandera de instruccionIlegal
+		else { strBinario += instruccionActual["codigoBinario"]; contador++; } //Si no, añade la propiedad codigoBinario a el string binario
 		
-		if (instruccionActual["usaRegistro"]) {
-			if (ProcSMR2.diccionarios.registros[arrCodigo[contador]] == undefined) { ProcSMR2.banderas.registroIlegal = true; continue; }
-			else { strBinario += ProcSMR2.diccionarios.registros[arrCodigo[contador]]; contador++; }
+		if (instruccionActual["usaRegistro"]) { //Si la instruccion usa algún registro, añadelo al binario
+			if (ProcSMR2.diccionarios.registros[arrCodigo[contador]] == undefined) { ProcSMR2.banderas.registroIlegal = true; continue; } //Si el registro no es válido activa la bandera de registroIlegal
+			else { strBinario += ProcSMR2.diccionarios.registros[arrCodigo[contador]]; contador++; } //Si no, añade el valor de el registro en binario a el string binario
 		}
-		else { strBinario += "000";}
+		else { strBinario += "000";} //Si no usa un registro, añade tres ceros para rellenar
 		
 		if (instruccionActual["usaDatos"]) {
-			if (isNaN(arrCodigo[contador]) || arrCodigo[contador] < 0 || arrCodigo[contador] > 255) {
+			if (isNaN(arrCodigo[contador]) || arrCodigo[contador] < 0 || arrCodigo[contador] > 255) { //Si el dato no es un número, es menor que 0 o mayor que 255 activa la bandera de numeroIlegal
 				ProcSMR2.banderas.numeroIlegal = true; continue; }
-			else {
+			else { //Si no, convierte el número a binario y añade ceros al principio hasta que mida 8 caracteres de largo
 				let numTemporal = Number(arrCodigo[contador]).toString(2);
 				while (numTemporal.length < 8) {
 					numTemporal = "0" + numTemporal;
@@ -74,7 +75,7 @@ function generar() {
 			}
 		}
 		
-		else { strBinario += "00000000";}
+		else { strBinario += "00000000";} //Si no usa un dato, añade ocho ceros para rellenar
 	}
 	
 	if (strBinario.length > 4096) { //Si el programa supera los 512 bytes, muestra un error
@@ -99,7 +100,8 @@ function ejecutar() {
 	let txtBinario      = document.querySelector("#txtBinario").value;
 	let divErrorBinario = document.querySelector("#divErrorBinario");
 	let divOutput       = document.querySelector("#divOutput");
-
+	divOutput.innerHTML = "";
+	
 	if (txtBinario.length > 4096) { //Si el programa es más de 512 bytes de largo, muestra un error
 		divErrorBinario.innerHTML = "Error: el programa supera la longitud de 512 bytes";
 		return;
@@ -110,7 +112,7 @@ function ejecutar() {
 		return;
 	}
 
-	else if (txtBinario.length % 16 != 0) {
+	else if (txtBinario.length % 16 != 0) { //Si no se puede dividir perfectamente entre 16 no es válido
 		divErrorBinario.innerHTML = "Error, el programa tiene una longitud inválida";
 		return;
 	}
@@ -120,56 +122,41 @@ function ejecutar() {
 		divErrorBinario.innerHTML = "";
 	}
 
-	let contador = 0;
+	txtBinario = txtBinario.match(/.{1,16}/g); //Convierte el string en binario a un array con elementos que son 16 bits de largo
+	
+	for (let contador = 0; contador < txtBinario.length; contador++) {
 
-	for (linea = 0; linea < txtBinario.length/16; linea++) {
+		ProcSMR2.memoria.programa[contador] = []
 
-		ProcSMR2.memoria.programa[linea] = []
+		ProcSMR2.memoria.programa[contador]["operacion"] = txtBinario[contador].slice(0, 5); //Carga la instrucción, 5 bits de largo
 
-		//Carga el programa en un array llamado memoria por lineas
-		//Cada linea contiene una instrucción, registro y dato
-		if (ProcSMR2.memoria.programa[linea]["operacion"] == undefined) { 
-			ProcSMR2.memoria.programa[linea]["operacion"] = "";
-			ProcSMR2.memoria.programa[linea]["registro"]  = "";
-			ProcSMR2.memoria.programa[linea]["dato"]      = "";
-		}
+		ProcSMR2.memoria.programa[contador]["registro"]  = txtBinario[contador].slice(5, 8); //Carga el registro, 3 bits de largo
 
-		for (let i = 0; i < 16 ; i++) {
+		ProcSMR2.memoria.programa[contador]["dato"]      = txtBinario[contador].slice(8, 16); //Carga el dato, 8 bits de largo
 
-			if      (i < 5)  { ProcSMR2.memoria.programa[linea]["operacion"] += txtBinario[contador]; } //Carga la instrucción, 5 bits de largo
-
-			else if (i < 8)  { ProcSMR2.memoria.programa[linea]["registro"]  += txtBinario[contador]; } //Carga el registro, 3 bits de largo
-
-			else if (i < 16) { ProcSMR2.memoria.programa[linea]["dato"]      += txtBinario[contador]; } //Carga el dato, 8 bits de largo
-
-			contador++;
-		}
 	}
 
+	//Se resetean algunas variables de control
 	ProcSMR2.memoria.linea = 0;
 	ProcSMR2.banderas.instruccionIlegal = false;
 	ProcSMR2.banderas.registroIlegal    = false;
 	ProcSMR2.banderas.numeroIlegal      = false;
 	
 	let strOutput = "";
-	let instruccionIlegal = false; //Bandera para señalar una instrucción ilegal
-	let numeroIlegal = false; //Bandera para señalar un número ilegal
-	strOutput = "<pre>";
-	divOutput.innerHTML = "";
+	strOutput = "<pre>"; //Se usa <pre> para que el texto pueda usar caracteres especiales como nuevas lineas
 	
 	//Se repite el bucle hasta que llegue al final del programa o a la linea 255
 	while (ProcSMR2.memoria.linea < ProcSMR2.memoria.programa.length && ProcSMR2.memoria.linea <= 255) {
 
-		if (instruccionIlegal) { //Si hay una instrucción ilegal, muestra un error y la línea del error
+		if (ProcSMR2.banderas.instruccionIlegal) { //Si hay una instrucción ilegal, muestra un error
 			divErrorBinario.innerHTML = "Error: el código binario que ha introducido no es válido";
 			return;
 		}
 
-		//Ejecuta la instrucción (la cuál siempre está en el primer elemento) de la linea actual
-		if (ProcSMR2.auxiliares.operacionActual() == undefined) {
+		if (ProcSMR2.auxiliares.operacionActual() == undefined) { //Si la operacion en la linea actual es undefined activa la bandera de instruccion ilegal y pasa a la siguiente iteracion
 			ProcSMR2.banderas.instruccionIlegal = true; continue;
 		}
-		else {
+		else { //Si no, guarda el resultado de ejecutar la operacion en una variable y si el return no es undefined, añadelo a el output
 			let resultadoOperacion = ProcSMR2.operaciones[ProcSMR2.auxiliares.operacionActual()]();
 			if (resultadoOperacion != undefined) {
 				strOutput += resultadoOperacion;
@@ -188,14 +175,13 @@ function ejecutar() {
 //      MAIN      //
 ////////////////////
 
-let caracteresASCII = ["\u0000","\u0001","\u0002","\u0003","\u0004","\u0005","\u0006","\u0007","\b","\t","\n","\u000b","\f","\r","\u000e","\u000f","\u0010","\u0011","\u0012","\u0013","\u0014","\u0015","\u0016","\u0017","\u0018","\u0019","\u001a","\u001b","\u001c","\u001d","\u001e","\u001f"," ","!","\"","#","$","%","&","'","(",")","*","+",",","-",".","/","0","1","2","3","4","5","6","7","8","9",":",";","<","=",">","?","@","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","[","\\","]","^","_","`","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","{","|","}","~"];
-
 document.querySelector("#btnGenerar").addEventListener("click", generar);
 document.querySelector("#btnEjecutar").addEventListener("click", ejecutar);
 
+//El objeto ProcSMR2 contiene toda la información relativa a el procesador
 let ProcSMR2 = {
 	
-	diccionarios : {
+	diccionarios : {	//Diccionarios que se usan para convertir de texto a binario el código
 		
 		instrucciones : {
 			
@@ -225,7 +211,7 @@ let ProcSMR2 = {
 	
 	},
 	
-	memoria : {
+	memoria : {		//Objeto donde se guarda el programa que se ejectua así como lo registros y el puntero de linea
 		
 		registros : [0, 0, 0, 0, 0, 0, 0, 0],
 		programa : [],
@@ -233,14 +219,14 @@ let ProcSMR2 = {
 		
 	},
 
-	operaciones : {
+	operaciones : {		//Objeto donde se guardan todas las operaciones posibles y su ejecución
 		
 		"00000" : function() { //imprime
         	return ProcSMR2.memoria.registros[ProcSMR2.auxiliares.registroActual()];
     	},
 
     	"00001" : function() { //imprimec
-			return caracteresASCII[ProcSMR2.memoria.registros[ProcSMR2.auxiliares.registroActual()]];
+			return String.fromCharCode(ProcSMR2.memoria.registros[ProcSMR2.auxiliares.registroActual()]);
     	},
 		
 		"00010" : function() { //valor
@@ -270,7 +256,7 @@ let ProcSMR2 = {
     	},
     },
 	
-	banderas : {
+	banderas : {	//Objeto donde se guardan varias banderas de control
 		
 		instruccionIlegal : false,
 		registroIlegal : false,
@@ -278,7 +264,7 @@ let ProcSMR2 = {
 		
 	},
 	
-    auxiliares : {
+    auxiliares : {		//Objeto donde se guardan varias funciones auxiliares que ayudan a hacer el código más legible
 
 		operacionActual : function() {
 			return ProcSMR2.memoria.programa[ProcSMR2.memoria.linea]["operacion"];
@@ -295,9 +281,5 @@ let ProcSMR2 = {
     	},
 
     },
-
-	debug : {
-		
-	},
 	
 }
