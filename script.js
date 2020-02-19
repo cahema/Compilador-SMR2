@@ -5,6 +5,13 @@
 //El objeto ProcSMR2 contiene toda la información relativa a el procesador
 let ProcSMR2 = {
 	
+	propiedades : {
+
+		numRegistros : 8,
+		tamMemoria : 4096,
+
+	}
+
 	diccionarios : {	//Diccionarios que se usan para convertir de texto a binario el código
 		
 		instrucciones : {
@@ -49,7 +56,7 @@ let ProcSMR2 = {
         	return ProcSMR2.memoria.registros[ProcSMR2.auxiliares.registroActual()];
     	},
 
-    	"00001" : function() { //imprimec
+		"00001" : function() { //imprimec
 			return String.fromCharCode(ProcSMR2.memoria.registros[ProcSMR2.auxiliares.registroActual()]);
     	},
 		
@@ -118,7 +125,10 @@ let ProcSMR2 = {
     	},
 
     	imprimePrograma : function() {
+    		console.log("Registros")
     		console.table(ProcSMR2.memoria.registros);
+
+    		console.log("Programa")
     		console.table(ProcSMR2.memoria.programa);
     	},
 
