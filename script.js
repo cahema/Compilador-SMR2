@@ -10,7 +10,7 @@ let ProcSMR2 = {
 		numRegistros : 8,
 		tamMemoria : 4096,
 
-	}
+	},
 
 	diccionarios : {	//Diccionarios que se usan para convertir de texto a binario el código
 		
