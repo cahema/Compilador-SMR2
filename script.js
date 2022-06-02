@@ -25,6 +25,7 @@ let ProcSMR2 = {
 			salta    : { codigoBinario : "00110", codigoTexto : "salta"    , usaRegistro : false, usaDatos : true },
 			saltasi0 : { codigoBinario : "00111", codigoTexto : "saltasi0" , usaRegistro : true , usaDatos : true },
 			negativos: { codigoBinario : "01000", codigoTexto : "negativos", usaRegistro : false, usaDatos : false},
+			positivos: { codigoBinario : "01001", codigoTexto : "positivos", usaRegistro : false, usaDatos : false},
 
 		},
 
@@ -90,6 +91,10 @@ let ProcSMR2 = {
 
 		"01000" : function() { //negativos
 			ProcSMR2.banderas.usaNegativos = true;
+    },
+
+		"01001" : function() { //positivos
+			ProcSMR2.banderas.usaNegativos = false;
     },
 
   },
